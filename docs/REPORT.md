@@ -24,7 +24,7 @@ A crucial part of our Agentic Optimization workflow was recognizing when a path 
   <img src="chassis_too_light.gif" width="40%" />
 </div>
 
-Original plan was to build the Jetson robot from web sources, this proved frustrating.  With the robot constantly spinning, and not moving.  We instantly pivoted to a simple Differential Drive Robot (orbit_bot) we had experience with in the past.  This was more productive and we tweaked the chassis weight from 1 gram (it originally was not meant to be a racer) to 5KG.  Gif shows the stuttering/flip of the robot due to the previous feather weight. 
+Original plan was to build the Jetbot robot from web sources, this proved frustrating.  With the robot constantly spinning, and not moving.  We instantly pivoted to a simple Differential Drive Robot (orbit_bot) we had experience with in the past.  This was more productive and we tweaked the chassis weight from 1 gram (it originally was not meant to be a racer) to 5KG.  Gif shows the stuttering/flip of the robot due to the previous feather weight. 
 
 
 ### 2. The "Two Boxes" Track Limitation
@@ -108,7 +108,7 @@ The successful evolution of this racing algorithm was not due to a single stroke
 Key takeaways from this exercise include:
 1.  **Human Intuition and AI:**  Humans, even without understanding the core physics or mathematics can provide the guidance (e.g. "do you have all the data you need ?") and qualitative feedback. 
 2.  **Rapid Empirical Iteration:** By automating the testing and refereeing, we were able to iterate through 5 entirely different control architectures in a single session—rapidly discarding failed hypotheses like the PD-controller and gap-following.
-3.  **Ruthless Pragmatism:** When early agentic orchestration revealed that the constructed Jetson Chassis was flawed in Gazebo, and that a basic two-box track was insufficient for testing, we immediately pivoted the hardware and procedurally generated new environments. Agentic workflows empower engineers to pivot dynamically rather than fighting broken dependencies.
+3.  **Ruthless Pragmatism:** When early agentic orchestration revealed that the constructed Jetbot Chassis was flawed in Gazebo, and that a basic two-box track was insufficient for testing, we immediately pivoted the hardware and procedurally generated new environments. Agentic workflows empower engineers to pivot dynamically rather than fighting broken dependencies.
 
 ---
 
