@@ -26,9 +26,23 @@ Original plan was to build the Jetson robot from web sources, this proved frustr
 
 
 ### 2. The "Two Boxes" Track Limitation
-*(Insert your 2-boxes screenshot here: `<img src="robot_in_center.png" width="40%" />`)*
+<div align="center">
+  <img src="robot_in_center.png" width="40%" />
+</div>
+
 
 Initially, we attempted to test the algorithms in a primitive environment consisting of only two large boxes with the robot spawned in the middle. We quickly realized this environment was useless for tuning high-speed cornering, as it lacked continuous curves, apexes, or varied track widths.  With the AI spawning the robot right in the middle (!), it was clear that human in the loop was needed.
+
+
+### 3. Orchestration
+
+The initial thinking was an Agentic Pipeline consisting of: 
+1) Multiple Track Generation 
+2) Robot building for web sources
+3) Agentic Optimization of AI (this was scaled down) 
+4) End to End headless Gazebo simulation. 
+
+The scaled down version focused primarily on emipirical Agentica Optimization.  
 
 ---
 
@@ -42,7 +56,7 @@ The loop consisted of four distinct phases:
 To rigorously test high-speed cornering, the basic 5x5 square track was insufficient. We tasked a Gazebo Architect subagent with writing a Python script to procedurally generate a complex, continuous-curve "Kidney Track" in SDF format. This provided a non-trivial environment with varying curve radii and sharp inner waistlines.
 
 ### 2. The CI/CD Telemetry Referee
-To objectively measure algorithmic improvements, we tasked a second subagent with writing a track-agnostic `referee_node`. Instead of relying on hardcoded checkpoints, this node dynamically calculated X/Y odometry, tracked lap times, monitored average speeds, and output massive arrays of raw telemetry to a `report.json` file after every run.
+To objectively measure algorithmic improvements, we tasked a second subagent with writing a track-agnostic `referee_node`. Instead of relying on hardcoded checkpoints, this node dynamically calculated X/Y odometry and output arrays of raw telemetry to a `report.json` file after every run.
 
 ### 3. Agentic Root-Cause Analysis
 As we pushed the speed limits, the robot began failing in bizarre ways that were impossible to diagnose by eye. Instead of manual plotting, we fed the `report.json` telemetry back into the agent for root-cause analysis:
@@ -51,6 +65,9 @@ As we pushed the speed limits, the robot began failing in bizarre ways that were
 
 ### 4. Rapid Algorithm Iteration
 Armed with exact telemetry diagnostics, we were able to rapidly iterate through 5 distinct control architectures (Algo 1 to 5) in a single session. For example, we attempted to use a Proportional-Derivative (PD) controller to fix the understeer, but the agentic analysis revealed that the Derivative term actively fights cornering on continuous curves. We instantly nuked the D-term and transitioned to an Ultra-Grip P-Controller, crushing our lap time records.
+
+Note: Many/Most of the root cause analysis was done with the human involved not fully understanding the mechanics and the physics.  The human visually observed the race and provided human feedback.  
+
 
 ---
 
@@ -84,12 +101,12 @@ Through the Agentic Loop, we were able to rapidly discard failing theories and e
 
 ## Conclusion & Learnings
 
-The successful evolution of this racing algorithm was not due to a single stroke of genius, but rather the strict adherence to an **Agentic Optimization** workflow. Relying on LLMs simply to "write code" is a deadend; using them to architect CI/CD infrastructure, generate procedural environments, and perform root-cause analysis on massive telemetry payloads is the future of robotics engineering.
+The successful evolution of this racing algorithm was not due to a single stroke of genius, but rather the adherence to **Agentic Optimization** workflow. Relying on LLMs simply to "write code" or check the output is a deadend; using them to architect CI/CD infrastructure, generate procedural environments, and perform root-cause analysis with human feedback is the future of robotics engineering.
 
 Key takeaways from this exercise include:
-1.  **Telemetry Over Intuition:** Phenomenons like high-speed physics tunneling and the "Pirouette Loop" were invisible to the naked eye. The Agentic Loop allowed us to instantly crunch thousands of lines of JSON telemetry to pinpoint the mathematical failures.
+1.  **Human Intuition and AI:**  Humans, even without understanding the core physics or mathematics can provide the guidance (e.g. "do you have all the data you need ?") and qualitative feedback. 
 2.  **Rapid Empirical Iteration:** By automating the testing and refereeing, we were able to iterate through 5 entirely different control architectures in a single session—rapidly discarding failed hypotheses like the PD-controller and gap-following.
-3.  **Ruthless Pragmatism:** When early agentic orchestration revealed that the Jetson chassis was physically flawed in Gazebo, and that a basic two-box track was insufficient for testing, we immediately pivoted the hardware and procedurally generated new environments. Agentic workflows empower engineers to pivot dynamically rather than fighting broken dependencies.
+3.  **Ruthless Pragmatism:** When early agentic orchestration revealed that the constructed Jetson Chassis was flawed in Gazebo, and that a basic two-box track was insufficient for testing, we immediately pivoted the hardware and procedurally generated new environments. Agentic workflows empower engineers to pivot dynamically rather than fighting broken dependencies.
 
 ---
 
