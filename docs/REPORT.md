@@ -1,7 +1,9 @@
 # Agentic Optimization: Autonomous Racing
 
 ## Executive Summary
+<img src="racer.png" align="right" width="300" />
 This project demonstrates the power of Agentic Optimization in robotics engineering. Starting with an unusable hardware configuration and zero test environments, we utilized autonomous AI agents to orchestrate the infrastructure, procedurally generate continuous-curve test tracks, and build a CI/CD telemetry referee. We then iteratively designed and tested 5 entirely different control architectures in a single session, evolving from a highly-oscillating reactive wall-follower to an ultra-grip, high-speed equidistant tracker capable of flawlessly navigating complex curves at 3.0 m/s.
+<br clear="all" />
 
 ### The Evolution of the Algorithm (Algo 1 to 5)
 <div align="center">
