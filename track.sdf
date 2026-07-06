@@ -1,0 +1,211 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="agentic_racer_track">
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+
+    <!-- T1.4: Lighting -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="track">
+      <static>true</static>
+      
+      <!-- Outer North -->
+      <link name="outer_north">
+        <pose>0 2.5 0.25 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>5.2 0.2 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>5.2 0.2 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Outer South -->
+      <link name="outer_south">
+        <pose>0 -2.5 0.25 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>5.2 0.2 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>5.2 0.2 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Outer East -->
+      <link name="outer_east">
+        <pose>2.5 0 0.25 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 4.8 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 4.8 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Outer West -->
+      <link name="outer_west">
+        <pose>-2.5 0 0.25 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 4.8 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 4.8 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Inner North -->
+      <link name="inner_north">
+        <pose>0 1.0 0.25 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>2.2 0.2 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>2.2 0.2 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>0 0 1 1</ambient>
+            <diffuse>0 0 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Inner South -->
+      <link name="inner_south">
+        <pose>0 -1.0 0.25 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>2.2 0.2 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>2.2 0.2 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>0 0 1 1</ambient>
+            <diffuse>0 0 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Inner East -->
+      <link name="inner_east">
+        <pose>1.0 0 0.25 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 1.8 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 1.8 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>0 0 1 1</ambient>
+            <diffuse>0 0 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Inner West -->
+      <link name="inner_west">
+        <pose>-1.0 0 0.25 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.2 1.8 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.2 1.8 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>0 0 1 1</ambient>
+            <diffuse>0 0 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+    </model>
+  </world>
+</sdf>

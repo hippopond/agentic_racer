@@ -13,6 +13,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
+        (os.path.join('share', package_name, 'urdf'), glob(os.path.join('urdf', '*.urdf'))),
+        (os.path.join('share', package_name), glob('*.sdf')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -28,7 +30,8 @@ setup(
     entry_points={
         'console_scripts': [
             'referee_node = agentic_racer.referee_node:main',
-            'agent_reviewer = agentic_racer.agent_reviewer:main'
+            'agent_reviewer = agentic_racer.agent_reviewer:main',
+            'autopilot_node = agentic_racer.autopilot_node:main'
         ],
     },
 )

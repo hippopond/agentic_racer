@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="agentic_racer_track">
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors"><render_engine>ogre2</render_engine></plugin>
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation><range>1000</range><constant>0.9</constant><linear>0.01</linear><quadratic>0.001</quadratic></attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision"><geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry></collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="track">
+      <static>true</static>
+      <!-- Edge 0 -->
+      <link name="outer_0"><pose>9.84 4.08 0.25 0 0 1.9635</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>1 0 0 1</ambient></material></visual></link>
+      <link name="inner_0"><pose>8.0 3.32 0.25 0 0 1.9635</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>0 0 1 1</ambient></material></visual></link>
+      <!-- Edge 1 -->
+      <link name="outer_1"><pose>4.08 9.84 0.25 0 0 2.7489</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>1 0 0 1</ambient></material></visual></link>
+      <link name="inner_1"><pose>3.32 8.0 0.25 0 0 2.7489</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>0 0 1 1</ambient></material></visual></link>
+      <!-- Edge 2 -->
+      <link name="outer_2"><pose>-4.08 9.84 0.25 0 0 -2.7489</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>1 0 0 1</ambient></material></visual></link>
+      <link name="inner_2"><pose>-3.32 8.0 0.25 0 0 -2.7489</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>0 0 1 1</ambient></material></visual></link>
+      <!-- Edge 3 -->
+      <link name="outer_3"><pose>-9.84 4.08 0.25 0 0 -1.9635</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>1 0 0 1</ambient></material></visual></link>
+      <link name="inner_3"><pose>-8.0 3.32 0.25 0 0 -1.9635</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>0 0 1 1</ambient></material></visual></link>
+      <!-- Edge 4 -->
+      <link name="outer_4"><pose>-9.84 -4.08 0.25 0 0 -1.1781</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>1 0 0 1</ambient></material></visual></link>
+      <link name="inner_4"><pose>-8.0 -3.32 0.25 0 0 -1.1781</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>0 0 1 1</ambient></material></visual></link>
+      <!-- Edge 5 -->
+      <link name="outer_5"><pose>-4.08 -9.84 0.25 0 0 -0.3927</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>1 0 0 1</ambient></material></visual></link>
+      <link name="inner_5"><pose>-3.32 -8.0 0.25 0 0 -0.3927</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>0 0 1 1</ambient></material></visual></link>
+      <!-- Edge 6 -->
+      <link name="outer_6"><pose>4.08 -9.84 0.25 0 0 0.3927</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>1 0 0 1</ambient></material></visual></link>
+      <link name="inner_6"><pose>3.32 -8.0 0.25 0 0 0.3927</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>0 0 1 1</ambient></material></visual></link>
+      <!-- Edge 7 -->
+      <link name="outer_7"><pose>9.84 -4.08 0.25 0 0 1.1781</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>1 0 0 1</ambient></material></visual></link>
+      <link name="inner_7"><pose>8.0 -3.32 0.25 0 0 1.1781</pose><collision name="col"><geometry><box><size>8.5 0.2 0.5</size></box></geometry></collision><visual name="vis"><geometry><box><size>8.5 0.2 0.5</size></box></geometry><material><ambient>0 0 1 1</ambient></material></visual></link>
+    </model>
+  </world>
+</sdf>
