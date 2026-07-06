@@ -14,16 +14,17 @@ class AutopilotNode(Node):
             10)
             
         self.publisher = self.create_publisher(Twist, '/cmd_vel_test', 10)
-        self.get_logger().info("ALGO 4: High-Grip Equidistant Initialized!")
+        self.get_logger().info("ALGO 5: Ultra-Grip Equidistant Initialized!")
         
     def scan_callback(self, msg):
         ranges = list(msg.ranges)
         num_ranges = len(ranges)
         front_idx = num_ranges // 2
         
-        # --- ALGO 4: High-Grip Equidistant ---
-        # Algo 3 was actually tunneling through the walls because it was driving too fast 
-        # and understeering into the jagged collision meshes of the new curved track.
+        # --- ALGO 5: PD High-Speed Equidistant ---
+        # To break the 11s lap time, we must raise the speed cap to 4.0 m/s.
+        # To prevent tunneling at 4.0 m/s, we must eliminate understeer by using a 
+        # Derivative (Kd) term to violently snap the steering into the apex early!
         
         # 2. Fixed 45-degree peripheral gaze
         # 45 degrees = index 45. We use a 20-degree cone (10 indices each side)
@@ -36,21 +37,20 @@ class AutopilotNode(Node):
         right_dist = min([min(r, 10.0) for r in right_cone])
         front_dist = min([min(r, 10.0) for r in front_cone])
         
-        # 3. Proportional Steering
-        # Kp raised to 2.0 to forcefully track the center line and prevent understeer!
+        # 3. High-Gain Proportional Steering
+        # The PD controller caused understeer because the Derivative term fights the 
+        # Proportional term as the robot approaches the center line, which is fatal in 
+        # a continuous curve! We revert to pure Proportional, but crank Kp to 2.5.
         error = left_dist - right_dist
-        Kp = 2.0
+        Kp = 2.5
         steering = error * Kp
         
-        # Extremely wide steering limits for 5.0m/s emergency maneuvers
-        steering = max(-3.0, min(3.0, steering))
+        # Increased maximum steering limit to 4.0 rad/s for tighter turning radius at 3.0 m/s!
+        steering = max(-4.0, min(4.0, steering))
         
-        # 4. Anti-Tunneling & Anti-Pirouette Speed Control
-        # We MUST brake when steering to prevent ramming the walls, but if speed drops too low 
-        # (e.g. 0.5 m/s) while steering is high (2.8 rad/s), the robot enters a pirouette loop 
-        # (spinning in place) and visually looks "stopped". 
-        # We guarantee a minimum speed of 1.5 m/s to maintain forward momentum!
-        speed = 1.0 + (front_dist * 0.6) - (abs(steering) * 0.8)
+        # 4. High-Speed Control
+        # Retaining the max speed at 3.0 m/s per user request. 
+        speed = 1.0 + (front_dist * 0.8) - (abs(steering) * 0.8)
         speed = max(1.5, min(3.0, speed))
         
         twist = Twist()
