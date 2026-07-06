@@ -26,7 +26,10 @@ Original plan was to build the Jetson robot from web sources, this proved frustr
 
 
 ### 2. The "Two Boxes" Track Limitation
-*(Insert your 2-boxes screenshot here: `<img src="robot_in_center.png" width="40%" />`)*
+<div align="center">
+  <img src="robot_in_center.png" width="40%" />
+</div>
+
 
 Initially, we attempted to test the algorithms in a primitive environment consisting of only two large boxes with the robot spawned in the middle. We quickly realized this environment was useless for tuning high-speed cornering, as it lacked continuous curves, apexes, or varied track widths.  With the AI spawning the robot right in the middle (!), it was clear that human in the loop was needed.
 
