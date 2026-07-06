@@ -22,10 +22,8 @@ class AutopilotNode(Node):
         front_idx = num_ranges // 2
         
         # 1. Look Ahead Diagonally (Predictive)
-        # Instead of looking directly left/right, we look 45 degrees ahead.
-        # This allows the robot to "see" the curve before it enters it!
-        # left is +45 degrees (index 180 + 45 = 225)
-        # right is -45 degrees (index 180 - 45 = 135)
+        # We extract two 20-degree cones pointing exactly 45 degrees left and right.
+        # This allows the robot to "see" the curve long before it enters the apex!
         left_cone = ranges[front_idx + 35 : front_idx + 55]
         right_cone = ranges[front_idx - 55 : front_idx - 35]
         front_cone = ranges[front_idx - 10 : front_idx + 10]
@@ -37,13 +35,13 @@ class AutopilotNode(Node):
         
         # 2. Predictive Equidistant Steering
         # By balancing the diagonal distances, the robot naturally steers into the curve
-        # long before it reaches the apex.
+        # smoothly, avoiding the twitchiness of standard wall-followers.
         error = left_dist - right_dist
         
         Kp = 0.8
         steering = error * Kp
         
-        # Unclamp the steering so it can actually make sharp turns!
+        # Unclamp the steering so it can actually make sharp hairpin turns!
         steering = max(-2.5, min(2.5, steering))
         
         # 3. Predictive Speed Control
@@ -65,7 +63,7 @@ class AutopilotNode(Node):
         if not hasattr(self, 'log_counter'): self.log_counter = 0
         self.log_counter += 1
         if self.log_counter % 10 == 0:
-            self.get_logger().info(f"Speed: {speed:.2f} | Error: {error:.2f} | Steer: {steering:.2f}")
+            self.get_logger().info(f"Speed: {speed:.2f} | L: {left_dist:.1f} R: {right_dist:.1f} | Steer: {steering:.2f}")
 
 def main(args=None):
     rclpy.init(args=args)
