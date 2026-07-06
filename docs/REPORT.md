@@ -17,17 +17,18 @@ This project demonstrates the power of Agentic Optimization in robotics engineer
 ## False Starts & Deadends
 A crucial part of our Agentic Optimization workflow was recognizing when a path was technically bankrupt and instantly pivoting. Early orchestrations revealed two major deadends:
 
-### 1. The Jetson Chassis Flaw
+### 1. Robot Selection and Weight
 <div align="center">
   <img src="chassis_too_light.gif" width="40%" />
 </div>
 
-The original Jetson robot chassis we attempted to use had severe physical modeling flaws in Gazebo. The chassis was mathematically too light relative to its wheel torque. Every time we commanded a forward velocity, the robot would pop a wheelie, flip backward, and become completely immobilized. Instead of wasting hours debugging the URDF inertia tensors, we immediately pivoted to the stable `orbit_bot` platform, allowing us to focus purely on algorithmic optimization.
+Original plan was to build the Jetson robot from web sources, this proved frustrating.  With the robot constantly spinning, and not moving.  We instantly pivoted to a simple Differential Drive Robot (orbit_bot) we had experience with in the past.  This was more productive and we tweaked the chassis weight from 1 gram (it originally was not meant to be a racer) to 5KG.  Gif shows the stuttering/flip of the robot due to the previous feather weight. 
+
 
 ### 2. The "Two Boxes" Track Limitation
-*(Insert your 2-boxes screenshot here: `<img src="two_boxes_track.png" width="40%" />`)*
+*(Insert your 2-boxes screenshot here: `<img src="robot_in_center.png" width="40%" />`)*
 
-Initially, we attempted to test the algorithms in a primitive environment consisting of only two large boxes with the robot spawned in the middle. We quickly realized this environment was useless for tuning high-speed cornering, as it lacked continuous curves, apexes, or varied track widths. This deadend directly prompted us to spawn the Gazebo Architect subagent to procedurally generate the complex Kidney Track.
+Initially, we attempted to test the algorithms in a primitive environment consisting of only two large boxes with the robot spawned in the middle. We quickly realized this environment was useless for tuning high-speed cornering, as it lacked continuous curves, apexes, or varied track widths.  With the AI spawning the robot right in the middle (!), it was clear that human in the loop was needed.
 
 ---
 
