@@ -21,7 +21,7 @@ def generate_launch_description():
             '-world', 'kidney_track',
             '-file', os.path.join(get_package_share_directory('orbit_bot'), 'urdf', 'orbit_bot.urdf'),
             '-name', 'orbit_bot',
-            '-x', '1.125',
+            '-x', '4.125',
             '-y', '-4.5',
             '-z', '0.1'
         ],

@@ -1,7 +1,9 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
 from ros_gz_interfaces.msg import Contacts
 from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist
 import json
 import os
 import subprocess
@@ -19,6 +21,15 @@ class RefereeNode(Node):
         self.start_time = self.get_clock().now()
         self.crashed = False
         
+        # New Metrics
+        self.wrong_way_events = 0
+        self.high_pitch_events = 0
+        self.stuck_events = 0
+        
+        self.max_pitch_deg = 0.0
+        self.stuck_timer_start = None
+        self.wrong_way_cooldown = 0
+        
         # Speed and Distance Tracking
         self.prev_x = None
         self.prev_y = None
@@ -31,8 +42,28 @@ class RefereeNode(Node):
         self.lap_start_time = self.get_clock().now()
         self.lap_times = []
         
+        # Telemetry
+        self.cmd_sub = self.create_subscription(Twist, '/cmd_vel_test', self.cmd_callback, 10)
+        self.current_steering = 0.0
+        self.prev_steering = 0.0
+        self.max_steering_jerk = 0.0
+        self.telemetry_log = []
+        self.last_telemetry_time = self.get_clock().now()
+        self.waypoints = self.generate_waypoints()
+        
         self.contact_sub = self.create_subscription(Contacts, '/bumper', self.contact_callback, 10)
         self.odom_sub = self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
+
+    def generate_waypoints(self):
+        waypoints = []
+        R = 4.5
+        for i in range(200):
+            t = -math.pi/2 + (i * 2 * math.pi / 200)
+            waypoints.append((R * (math.cos(t) - 0.25 * math.cos(2*t)) + 3.0, R * math.sin(t)))
+        return waypoints
+
+    def cmd_callback(self, msg):
+        self.current_steering = msg.angular.z
 
     def odom_callback(self, msg):
         if self.crashed:
@@ -41,10 +72,86 @@ class RefereeNode(Node):
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
         
-        # Calculate current speed from twist
+        q = msg.pose.pose.orientation
+        
+        # 1. Pitch Calculation
+        sinp = 2.0 * (q.w * q.y - q.z * q.x)
+        if abs(sinp) >= 1:
+            pitch = math.copysign(math.pi / 2, sinp)
+        else:
+            pitch = math.asin(sinp)
+        pitch_deg = math.degrees(abs(pitch))
+        
+        if pitch_deg > self.max_pitch_deg:
+            self.max_pitch_deg = pitch_deg
+            
+        if pitch_deg > 10.0:
+            self.high_pitch_events += 1
+            if self.high_pitch_events % 50 == 0:
+                self.get_logger().warn(f"High Pitch Detected! {pitch_deg:.1f} degrees")
+        
+        # 2. Wrong Way Calculation (Cross Product)
+        siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        yaw = math.atan2(siny_cosp, cosy_cosp)
+        
+        global_x = x + 4.125
+        global_y = y - 4.5
+        cross_product = global_x * math.sin(yaw) - global_y * math.cos(yaw)
+        
+        current_time = self.get_clock().now()
+        
+        if cross_product < -0.5:
+            # Cool down to prevent spamming (2 seconds)
+            if current_time.nanoseconds - self.wrong_way_cooldown > 2e9:
+                self.wrong_way_events += 1
+                self.get_logger().warn("Wrong Way Detected by Referee!")
+                self.wrong_way_cooldown = current_time.nanoseconds
+                
+        # 3. Telemetry Log (Roll, CTE, Steering Jerk)
+        sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z)
+        cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y)
+        roll_deg = math.degrees(math.atan2(sinr_cosp, cosr_cosp))
+        
+        cte = min(math.hypot(wx - global_x, wy - global_y) for wx, wy in self.waypoints)
+        
+        dt = (current_time - self.last_telemetry_time).nanoseconds / 1e9
+        if dt > 0:
+            jerk = abs(self.current_steering - self.prev_steering) / dt
+            if jerk > self.max_steering_jerk:
+                self.max_steering_jerk = jerk
+        self.prev_steering = self.current_steering
+        
+        if dt >= 0.5:
+            self.telemetry_log.append({
+                "time_sec": (current_time - self.start_time).nanoseconds / 1e9,
+                "x": global_x,
+                "y": global_y,
+                "yaw_deg": math.degrees(yaw),
+                "speed": self.current_speed,
+                "steering": self.current_steering,
+                "cte": cte,
+                "pitch_deg": pitch_deg,
+                "roll_deg": roll_deg
+            })
+            self.last_telemetry_time = current_time
+        
+        # 4. Stuck Detection
         vx = msg.twist.twist.linear.x
         vy = msg.twist.twist.linear.y
         self.current_speed = math.hypot(vx, vy)
+        
+        if self.current_speed < 0.1:
+            if self.stuck_timer_start is None:
+                self.stuck_timer_start = current_time
+            else:
+                stuck_duration = (current_time - self.stuck_timer_start).nanoseconds / 1e9
+                if stuck_duration > 3.0:
+                    self.stuck_events += 1
+                    self.get_logger().warn("Robot is STUCK!")
+                    self.stuck_timer_start = current_time # Reset to ping every 3 sec
+        else:
+            self.stuck_timer_start = None
         
         if self.prev_x is None:
             self.prev_x = x
@@ -65,7 +172,6 @@ class RefereeNode(Node):
                         self.expected_crossing_dir = crossing_dir
                         
                     if crossing_dir == self.expected_crossing_dir:
-                        current_time = self.get_clock().now()
                         lap_time = (current_time - self.lap_start_time).nanoseconds / 1e9
                         
                         # Prevent false triggers if time is too short
@@ -91,12 +197,11 @@ class RefereeNode(Node):
             self.get_logger().error("CRASH DETECTED!")
             self.crashes = 1
             self.crashed = True
-            self.generate_report()
             
             # Gracefully kill ROS 2 nodes (including Gazebo)
             subprocess.run(['killall', '-9', 'ruby'])
             subprocess.run(['killall', '-9', 'gz'])
-            os._exit(0)
+            raise ExternalShutdownException()
 
     def generate_report(self):
         elapsed_time = (self.get_clock().now() - self.start_time).nanoseconds / 1e9
@@ -106,24 +211,31 @@ class RefereeNode(Node):
             "laps_completed": self.laps_completed,
             "lap_times_sec": self.lap_times,
             "crashes": self.crashes,
+            "wrong_way_events": self.wrong_way_events,
+            "high_pitch_events": self.high_pitch_events,
+            "max_pitch_deg": self.max_pitch_deg,
+            "max_steering_jerk": self.max_steering_jerk,
+            "stuck_events": self.stuck_events,
             "total_elapsed_time_sec": elapsed_time,
             "total_distance_m": self.total_distance,
-            "average_speed_m_s": avg_speed
+            "average_speed_m_s": avg_speed,
+            "telemetry": self.telemetry_log
         }
         
         report_path = os.path.join(os.getcwd(), 'report.json')
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=4)
-        self.get_logger().info(f"Race finished. Evaluation report saved to {report_path}")
+        self.get_logger().info(f"\n======================================\nRace finished. Evaluation report saved to {report_path}\n======================================")
 
 def main(args=None):
     rclpy.init(args=args)
     node = RefereeNode()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
-        node.generate_report()
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
     finally:
+        node.generate_report()
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
