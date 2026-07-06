@@ -14,18 +14,21 @@ class AutopilotNode(Node):
             10)
             
         self.publisher = self.create_publisher(Twist, '/cmd_vel_test', 10)
-        self.get_logger().info("Predictive Equidistant (Algo 3) Initialized!")
+        self.get_logger().info("ALGO 4: High-Grip Equidistant Initialized!")
         
     def scan_callback(self, msg):
         ranges = list(msg.ranges)
         num_ranges = len(ranges)
         front_idx = num_ranges // 2
         
-        # 1. Look Ahead Diagonally (Predictive)
-        # We extract two 20-degree cones pointing exactly 45 degrees left and right.
-        # This allows the robot to "see" the curve long before it enters the apex!
-        left_cone = ranges[front_idx + 35 : front_idx + 55]
-        right_cone = ranges[front_idx - 55 : front_idx - 35]
+        # --- ALGO 4: High-Grip Equidistant ---
+        # Algo 3 was actually tunneling through the walls because it was driving too fast 
+        # and understeering into the jagged collision meshes of the new curved track.
+        
+        # 2. Fixed 45-degree peripheral gaze
+        # 45 degrees = index 45. We use a 20-degree cone (10 indices each side)
+        left_cone = ranges[front_idx + 45 - 10 : front_idx + 45 + 10]
+        right_cone = ranges[front_idx - 45 - 10 : front_idx - 45 + 10]
         front_cone = ranges[front_idx - 10 : front_idx + 10]
         
         # Filter infinities
@@ -33,26 +36,22 @@ class AutopilotNode(Node):
         right_dist = min([min(r, 10.0) for r in right_cone])
         front_dist = min([min(r, 10.0) for r in front_cone])
         
-        # 2. Predictive Equidistant Steering
-        # By balancing the diagonal distances, the robot naturally steers into the curve
-        # smoothly, avoiding the twitchiness of standard wall-followers.
+        # 3. Proportional Steering
+        # Kp raised to 2.0 to forcefully track the center line and prevent understeer!
         error = left_dist - right_dist
-        
-        Kp = 0.8
+        Kp = 2.0
         steering = error * Kp
         
-        # Unclamp the steering so it can actually make sharp hairpin turns!
-        steering = max(-2.5, min(2.5, steering))
+        # Extremely wide steering limits for 5.0m/s emergency maneuvers
+        steering = max(-3.0, min(3.0, steering))
         
-        # 3. Predictive Speed Control
-        # If the track is clear straight ahead, and we aren't turning hard, punch it.
-        if front_dist > 3.0 and abs(steering) < 0.3:
-            speed = 3.0
-        else:
-            # Smoothly brake based on how close the front wall is
-            speed = 0.5 + (front_dist * 0.4) - (abs(steering) * 0.5)
-            
-        speed = max(0.5, min(3.0, speed))
+        # 4. Anti-Tunneling & Anti-Pirouette Speed Control
+        # We MUST brake when steering to prevent ramming the walls, but if speed drops too low 
+        # (e.g. 0.5 m/s) while steering is high (2.8 rad/s), the robot enters a pirouette loop 
+        # (spinning in place) and visually looks "stopped". 
+        # We guarantee a minimum speed of 1.5 m/s to maintain forward momentum!
+        speed = 1.0 + (front_dist * 0.6) - (abs(steering) * 0.8)
+        speed = max(1.5, min(3.0, speed))
         
         twist = Twist()
         twist.linear.x = speed
