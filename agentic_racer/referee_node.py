@@ -162,9 +162,10 @@ class RefereeNode(Node):
         self.total_distance += dist_step
         self.lap_distance += dist_step
         
-        # Track-agnostic lap counting: crossing the Y axis (X=0) where Y > 0
+        # Track-agnostic lap counting: crossing the Y axis (X=0)
         if (self.prev_x < 0 and x >= 0) or (self.prev_x >= 0 and x < 0):
-            if y > 0.0 and abs(x) < 2.0:
+            # For the procedural Kidney track, the top lobe crosses X=0 around Y=-2.15
+            if y > -4.0 and abs(x) < 3.0:
                 if self.lap_distance > 5.0:
                     crossing_dir = 1 if x >= self.prev_x else -1
                     
