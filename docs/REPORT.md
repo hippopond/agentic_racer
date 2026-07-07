@@ -1,5 +1,7 @@
 # Agentic Optimization: Autonomous Racing
 
+> **Author's Note:** This project was developed as a solo-architected exploration into modern AI engineering workflows. Throughout this report, the pronoun "we" is used intentionally to represent the collaborative, human-in-the-loop partnership between myself (acting as the systems orchestrator) and the autonomous AI agents utilized to rapidly generate, test, and analyze the infrastructure. 
+
 ## Executive Summary
 <img src="racer.png" align="right" width="300" />
 This project demonstrates the power of Agentic Optimization in robotics engineering. Starting with an unusable hardware configuration and zero test environments, we utilized autonomous AI agents to orchestrate the infrastructure, procedurally generate continuous-curve test tracks, and build a CI/CD telemetry referee. We then iteratively designed and tested 5 entirely different control architectures in a single session, evolving from a highly-oscillating reactive wall-follower to an ultra-grip, high-speed equidistant tracker capable of flawlessly navigating complex curves at 3.0 m/s.
@@ -33,7 +35,7 @@ Original plan was to build the Jetbot robot from web sources, this proved frustr
 </div>
 
 
-Initially, we attempted to test the algorithms in a primitive environment consisting of only two large boxes with the robot spawned in the middle. We quickly realized this environment was useless for tuning high-speed cornering, as it lacked continuous curves, apexes, or varied track widths.  With the AI spawning the robot right in the middle (!), it was clear that human in the loop was needed.
+Initially, we attempted to test the algorithms in a primitive environment consisting of only two large boxes. We quickly realized this environment was useless for tuning high-speed cornering, as it lacked continuous curves, apexes, or varied track widths.  With the AI spawning the robot right in the middle (!), it was clear that closer human guidance was needed.
 
 
 ### 3. Orchestration
