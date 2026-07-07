@@ -122,3 +122,7 @@ Key takeaways from this exercise include:
 *   **Environment:** Docker (`ros2_jazzy_desktop` containerized workspace)
 *   **Orchestration:** Google Antigravity (Agentic CI/CD workflow, Autonomous Subagents)
 *   **Development IDE:** Emacs (TRAMP & Pyright for Split-Brain Host/Docker development)
+
+### Quick Start Commands
+*   **Recompile the Pipeline:** `colcon build --packages-select agentic_racer`
+*   **Launch the Telemetry Race:** `ros2 launch agentic_racer eval_pipeline.launch.py`
